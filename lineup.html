@@ -42,17 +42,6 @@ body{
   height:46px;
 }
 
-/* ختم الحساب */
-.userX{
-  position:absolute;
-  bottom:20px;
-  left:22px;
-  color:var(--pitch);
-  font-size:13px;
-  font-weight:bold;
-  opacity:0.9;
-}
-
 /* الملعب */
 .pitch-wrapper{
   position:absolute;
@@ -97,6 +86,42 @@ body{
   border-radius:10px;
   box-shadow:0 3px 10px rgba(0,0,0,0.4);
   cursor:pointer;
+  z-index:20;
+}
+
+/* ختم X (صورة + @username) */
+.stamp{
+  position:absolute;
+  left:18px;
+  bottom:18px;
+  display:none;
+  align-items:center;
+  gap:10px;
+  z-index:25;
+}
+.stamp .avatar{
+  width:74px;
+  height:74px;
+  border-radius:50%;
+  border:7px solid var(--pitch);
+  background:#00000022;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.stamp .avatar img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  display:block;
+}
+.stamp .handle{
+  color:var(--pitch);
+  font-size:16px;
+  font-weight:900;
+  direction:ltr;
+  text-shadow:0 3px 10px rgba(0,0,0,0.45);
 }
 </style>
 </head>
@@ -108,15 +133,20 @@ body{
   <button id="saveImageBtn">💾 حفظ الصورة</button>
 
   <div class="logo">
-    <img src="https://i.postimg.cc/pdy9nJdV/IMG-1720.png" alt="OUR CAMEL">
+    <img id="logoImg" src="https://i.postimg.cc/pdy9nJdV/IMG-1720.png" alt="OUR CAMEL" crossorigin="anonymous">
   </div>
 
-  <!-- ختم الحساب -->
-  <div class="userX" id="userXTag">@USER</div>
+  <!-- ختم X -->
+  <div class="stamp" id="stamp">
+    <div class="avatar">
+      <img id="stampAvatar" alt="X Avatar" crossorigin="anonymous">
+    </div>
+    <div class="handle" id="stampHandle">@USER</div>
+  </div>
 
   <!-- الملعب -->
   <div class="pitch-wrapper">
-    <svg viewBox="0 0 360 600" xmlns="http://www.w3.org/2000/svg">
+    <svg id="pitchSvg" viewBox="0 0 360 600" xmlns="http://www.w3.org/2000/svg">
 
       <defs>
         <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
@@ -179,6 +209,29 @@ body{
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <script>
+// --- CORS Proxy (مهم جداً عشان الصور ما تختفي وقت الحفظ) ---
+function corsProxy(url){
+  if(!url) return "";
+  try{
+    const clean = url.replace(/^https?:\/\//,'');
+    return `https://images.weserv.nl/?url=${encodeURIComponent(clean)}&output=png`;
+  }catch(e){
+    return url;
+  }
+}
+
+// تحميل صورة (للانتظار قبل التصوير)
+function preloadImage(url){
+  return new Promise(resolve=>{
+    if(!url) return resolve();
+    const im = new Image();
+    im.crossOrigin = "anonymous";
+    im.onload = ()=>resolve();
+    im.onerror = ()=>resolve();
+    im.src = url;
+  });
+}
+
 // نفس حدود الملعب مثل index
 const PITCH_LEFT = 40;
 const PITCH_RIGHT = 320;
@@ -190,7 +243,7 @@ const H = PITCH_BOTTOM - PITCH_TOP;
 function mx(p){ return PITCH_LEFT + (p/100)*W; }
 function my(p){ return PITCH_TOP + (p/100)*H; }
 
-// نفس التشكيلات بالضبط من index.html
+// نفس التشكيلات
 const formations = {
   "4-4-2":[
     {x:50,  y:88},  // GK
@@ -235,22 +288,31 @@ const formations = {
 
 const spots = [...document.querySelectorAll(".spot")];
 
-/* تحميل التشكيلة من localStorage */
+// عناصر الختم
+const stamp = document.getElementById("stamp");
+const stampAvatar = document.getElementById("stampAvatar");
+const stampHandle = document.getElementById("stampHandle");
+
+// تحميل التشكيلة من localStorage
+let currentData = null;
+
 (function load(){
   const dataStr = localStorage.getItem("currentLineup");
   if(!dataStr) return;
 
-  let data;
   try{
-    data = JSON.parse(dataStr);
+    currentData = JSON.parse(dataStr);
   }catch(e){
     console.error("خطأ في قراءة currentLineup من localStorage", e);
     return;
   }
 
-  const f = formations[data.formation] || formations["4-4-2"];
+  // اللوجو عبر البروكسي
+  document.getElementById("logoImg").src = corsProxy("https://i.postimg.cc/pdy9nJdV/IMG-1720.png");
 
-  data.spots.forEach((pl,i)=>{
+  const f = formations[currentData.formation] || formations["4-4-2"];
+
+  currentData.spots.forEach((pl,i)=>{
     if(!f[i] || !spots[i]) return;
 
     const pos = f[i];
@@ -267,25 +329,71 @@ const spots = [...document.querySelectorAll(".spot")];
 
     img.setAttribute("x",cx-30);
     img.setAttribute("y",cy-30);
-    if(pl.img) img.setAttribute("href",pl.img);
+
+    // مهم: صورة اللاعب عبر البروكسي
+    if(pl.img){
+      const url = corsProxy(pl.img);
+      img.setAttribute("href", url);
+      // دعم إضافي لبعض المتصفحات
+      img.setAttributeNS("http://www.w3.org/1999/xlink", "href", url);
+    }
 
     name.setAttribute("x",cx);
     name.setAttribute("y",cy+42);
     name.textContent = pl.name || "";
   });
 
-  // ختم حساب X
+  // ختم حساب X (صورة + اسم)
   const userX = localStorage.getItem("userX") || "";
-  document.getElementById("userXTag").textContent = userX ? "@"+userX : "";
+  if(userX){
+    stampHandle.textContent = "@"+userX.replace(/^@/,'');
+    stampAvatar.src = corsProxy(`https://unavatar.io/twitter/${userX.replace(/^@/,'')}`);
+    stamp.style.display = "flex";
+  }else{
+    stamp.style.display = "none";
+  }
 })();
 
-/* حفظ الصورة PNG */
-document.getElementById("saveImageBtn").onclick = ()=>{
-  html2canvas(document.getElementById("captureArea")).then(c=>{
+// حفظ الصورة PNG
+document.getElementById("saveImageBtn").onclick = async ()=>{
+  const capture = document.getElementById("captureArea");
+
+  // نجهّز قائمة الصور اللي لازم تتحمّل قبل التصوير
+  const imagesToLoad = [];
+
+  // لوجو
+  imagesToLoad.push(preloadImage(document.getElementById("logoImg").src));
+
+  // ختم X (إذا موجود)
+  if(stamp.style.display !== "none"){
+    imagesToLoad.push(preloadImage(stampAvatar.src));
+  }
+
+  // صور اللاعبين (من currentData)
+  if(currentData && Array.isArray(currentData.spots)){
+    currentData.spots.forEach(pl=>{
+      if(pl && pl.img) imagesToLoad.push(preloadImage(corsProxy(pl.img)));
+    });
+  }
+
+  await Promise.all(imagesToLoad);
+
+  // تصوير
+  html2canvas(capture, {
+    useCORS: true,
+    allowTaint: false,
+    backgroundColor: null,
+    scale: 2,
+    logging: false,
+    foreignObjectRendering: true
+  }).then(c=>{
     const a = document.createElement("a");
     a.download = "lineup.png";
     a.href = c.toDataURL("image/png");
     a.click();
+  }).catch(err=>{
+    console.error(err);
+    alert("تعذر حفظ الصورة، جرّب إعادة تحميل الصفحة.");
   });
 };
 </script>

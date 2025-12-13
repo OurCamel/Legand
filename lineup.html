@@ -11,6 +11,8 @@
   --pitch:#e4bd79;
 }
 
+*{ box-sizing:border-box; }
+
 body{
   margin:0;
   background:var(--bg);
@@ -38,8 +40,23 @@ body{
   text-align:center;
   z-index:5;
 }
-.logo img{
-  height:46px;
+.logo img{ height:46px; }
+
+/* زر الحفظ */
+#saveImageBtn{
+  position:absolute;
+  top:20px;
+  right:20px;
+  padding:8px 16px;
+  background:var(--pitch);
+  color:var(--bg);
+  font-weight:bold;
+  border:none;
+  font-size:12px;
+  border-radius:10px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.4);
+  cursor:pointer;
+  z-index:50;
 }
 
 /* الملعب */
@@ -58,35 +75,51 @@ body{
   display:block;
 }
 
-/* دائرة اللاعب */
-.spot-ring{
-  fill:var(--pitch);
-  stroke:#00000055;
-  stroke-width:4;
-  filter:url(#shadow);
-}
-.spot-name{
-  fill:var(--pitch);
-  font-size:11px;
-  font-weight:bold;
-  text-anchor:middle;
+/* طبقة اللاعبين فوق الملعب */
+.players-layer{
+  position:absolute;
+  inset:0;
+  z-index:20;
+  pointer-events:none;
 }
 
-/* زر الحفظ */
-#saveImageBtn{
+/* بطاقة اللاعب (دائرة + اسم) */
+.player-spot{
   position:absolute;
-  top:20px;
-  right:20px;
-  padding:8px 16px;
+  width:66px;
+  height:66px;
+  transform:translate(-50%,-50%);
+  border-radius:50%;
   background:var(--pitch);
-  color:var(--bg);
-  font-weight:bold;
-  border:none;
+  border:4px solid #00000055;
+  box-shadow:0 5px 14px rgba(0,0,0,0.35);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.player-spot img{
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  object-fit:cover;
+  display:block;
+}
+
+.player-name{
+  position:absolute;
+  top:70px;
+  left:50%;
+  transform:translateX(-50%);
+  width:max-content;
+  max-width:150px;
   font-size:12px;
-  border-radius:10px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.4);
-  cursor:pointer;
-  z-index:20;
+  font-weight:800;
+  color:var(--pitch);
+  text-shadow:0 3px 10px rgba(0,0,0,0.5);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
 }
 
 /* ختم X (صورة + @username) */
@@ -94,10 +127,10 @@ body{
   position:absolute;
   left:18px;
   bottom:18px;
-  display:none;
+  display:none;           /* يظهر إذا عندك userX */
   align-items:center;
   gap:10px;
-  z-index:25;
+  z-index:30;
 }
 .stamp .avatar{
   width:74px;
@@ -133,28 +166,15 @@ body{
   <button id="saveImageBtn">💾 حفظ الصورة</button>
 
   <div class="logo">
-    <img id="logoImg" src="https://i.postimg.cc/pdy9nJdV/IMG-1720.png" alt="OUR CAMEL" crossorigin="anonymous">
-  </div>
-
-  <!-- ختم X -->
-  <div class="stamp" id="stamp">
-    <div class="avatar">
-      <img id="stampAvatar" alt="X Avatar" crossorigin="anonymous">
-    </div>
-    <div class="handle" id="stampHandle">@USER</div>
+    <img id="logoImg" alt="OUR CAMEL" crossorigin="anonymous">
   </div>
 
   <!-- الملعب -->
-  <div class="pitch-wrapper">
-    <svg id="pitchSvg" viewBox="0 0 360 600" xmlns="http://www.w3.org/2000/svg">
+  <div class="pitch-wrapper" id="pitchWrap">
 
+    <svg viewBox="0 0 360 600" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="rgba(0,0,0,0.45)"/>
-        </filter>
-
-        <linearGradient id="pitchGrad" gradientUnits="userSpaceOnUse"
-                        x1="20" y1="60" x2="20" y2="540">
+        <linearGradient id="pitchGrad" gradientUnits="userSpaceOnUse" x1="20" y1="60" x2="20" y2="540">
           <stop offset="0%" stop-color="#1c2245" />
           <stop offset="50%" stop-color="#262c55" />
           <stop offset="100%" stop-color="#1c2245" />
@@ -165,51 +185,35 @@ body{
       <rect x="20" y="60" width="320" height="480" fill="url(#pitchGrad)" />
 
       <!-- خطوط الملعب -->
-      <rect x="20" y="60" width="320" height="480"
-            fill="none" stroke="var(--pitch)" stroke-width="3"/>
+      <rect x="20" y="60" width="320" height="480" fill="none" stroke="var(--pitch)" stroke-width="3"/>
+      <line x1="20" y1="300" x2="340" y2="300" stroke="var(--pitch)" stroke-width="3"/>
+      <circle cx="180" cy="300" r="48" fill="none" stroke="var(--pitch)" stroke-width="3"/>
 
-      <line x1="20" y1="300" x2="340" y2="300"
-            stroke="var(--pitch)" stroke-width="3"/>
+      <rect x="90" y="60" width="180" height="110" fill="none" stroke="var(--pitch)" stroke-width="3"/>
+      <rect x="130" y="60" width="100" height="60" fill="none" stroke="var(--pitch)" stroke-width="3"/>
+      <path d="M 150 170 A 30 30 0 0 0 210 170" fill="none" stroke="var(--pitch)" stroke-width="3"/>
 
-      <circle cx="180" cy="300" r="48"
-              fill="none" stroke="var(--pitch)" stroke-width="3"/>
-
-      <rect x="90" y="60" width="180" height="110"
-            fill="none" stroke="var(--pitch)" stroke-width="3"/>
-      <rect x="130" y="60" width="100" height="60"
-            fill="none" stroke="var(--pitch)" stroke-width="3"/>
-      <path d="M 150 170 A 30 30 0 0 0 210 170"
-            fill="none" stroke="var(--pitch)" stroke-width="3"/>
-
-      <rect x="90" y="430" width="180" height="110"
-            fill="none" stroke="var(--pitch)" stroke-width="3"/>
-      <rect x="130" y="480" width="100" height="60"
-            fill="none" stroke="var(--pitch)" stroke-width="3"/>
-      <path d="M 150 430 A 30 30 0 0 1 210 430"
-            fill="none" stroke="var(--pitch)" stroke-width="3"/>
-
-      <!-- 11 موضع لاعب -->
-      <g class="spot"><circle class="spot-ring" r="30"/><image class="spot-img" width="60" height="60"/><text class="spot-name"></text></g>
-      <g class="spot"><circle class="spot-ring" r="30"/><image class="spot-img" width="60" height="60"/><text class="spot-name"></text></g>
-      <g class="spot"><circle class="spot-ring" r="30"/><image class="spot-img" width="60" height="60"/><text class="spot-name"></text></g>
-      <g class="spot"><circle class="spot-ring" r="30"/><image class="spot-img" width="60" height="60"/><text class="spot-name"></text></g>
-      <g class="spot"><circle class="spot-ring" r="30"/><image class="spot-img" width="60" height="60"/><text class="spot-name"></text></g>
-      <g class="spot"><circle class="spot-ring" r="30"/><image class="spot-img" width="60" height="60"/><text class="spot-name"></text></g>
-      <g class="spot"><circle class="spot-ring" r="30"/><image class="spot-img" width="60" height="60"/><text class="spot-name"></text></g>
-      <g class="spot"><circle class="spot-ring" r="30"/><image class="spot-img" width="60" height="60"/><text class="spot-name"></text></g>
-      <g class="spot"><circle class="spot-ring" r="30"/><image class="spot-img" width="60" height="60"/><text class="spot-name"></text></g>
-      <g class="spot"><circle class="spot-ring" r="30"/><image class="spot-img" width="60" height="60"/><text class="spot-name"></text></g>
-      <g class="spot"><circle class="spot-ring" r="30"/><image class="spot-img" width="60" height="60"/><text class="spot-name"></text></g>
-
+      <rect x="90" y="430" width="180" height="110" fill="none" stroke="var(--pitch)" stroke-width="3"/>
+      <rect x="130" y="480" width="100" height="60" fill="none" stroke="var(--pitch)" stroke-width="3"/>
+      <path d="M 150 430 A 30 30 0 0 1 210 430" fill="none" stroke="var(--pitch)" stroke-width="3"/>
     </svg>
-  </div>
 
+    <!-- طبقة اللاعبين -->
+    <div class="players-layer" id="playersLayer"></div>
+
+    <!-- ختم X -->
+    <div class="stamp" id="stamp">
+      <div class="avatar"><img id="stampAvatar" alt="X Avatar" crossorigin="anonymous"></div>
+      <div class="handle" id="stampHandle">@USER</div>
+    </div>
+
+  </div>
 </div>
 
 <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 
 <script>
-// --- CORS Proxy (مهم جداً عشان الصور ما تختفي وقت الحفظ) ---
+// ---------- CORS Proxy (مهم جداً) ----------
 function corsProxy(url){
   if(!url) return "";
   try{
@@ -220,7 +224,6 @@ function corsProxy(url){
   }
 }
 
-// تحميل صورة (للانتظار قبل التصوير)
 function preloadImage(url){
   return new Promise(resolve=>{
     if(!url) return resolve();
@@ -232,169 +235,183 @@ function preloadImage(url){
   });
 }
 
-// نفس حدود الملعب مثل index
-const PITCH_LEFT = 40;
-const PITCH_RIGHT = 320;
-const PITCH_TOP = 60;
-const PITCH_BOTTOM = 540;
-const W = PITCH_RIGHT - PITCH_LEFT;
-const H = PITCH_BOTTOM - PITCH_TOP;
+async function waitAllImages(container){
+  const imgs = Array.from(container.querySelectorAll("img"));
+  await Promise.all(imgs.map(img=>{
+    if(img.complete && img.naturalWidth > 0) return Promise.resolve();
+    return new Promise(res=>{
+      img.onload = ()=>res();
+      img.onerror = ()=>res();
+    });
+  }));
+}
 
-function mx(p){ return PITCH_LEFT + (p/100)*W; }
-function my(p){ return PITCH_TOP + (p/100)*H; }
-
-// نفس التشكيلات
+// ---------- التشكيلات (نفس اللي عندك) ----------
 const formations = {
   "4-4-2":[
-    {x:50,  y:88},  // GK
-    {x:25,  y:70},  // LB
-    {x:40,  y:68},  // LCB
-    {x:60,  y:68},  // RCB
-    {x:75,  y:70},  // RB
-    {x:22,  y:52},  // LM
-    {x:40,  y:48},  // LCM
-    {x:60,  y:48},  // RCM
-    {x:78,  y:52},  // RM
-    {x:42,  y:30},  // LF
-    {x:58,  y:30}   // RF
+    {x:50,  y:88},
+    {x:25,  y:70},
+    {x:40,  y:68},
+    {x:60,  y:68},
+    {x:75,  y:70},
+    {x:22,  y:52},
+    {x:40,  y:48},
+    {x:60,  y:48},
+    {x:78,  y:52},
+    {x:42,  y:30},
+    {x:58,  y:30}
   ],
   "4-3-3":[
-    {x:50, y:14},  // GK
-    {x:20, y:30},  // LB
-    {x:40, y:30},  // LCB
-    {x:60, y:30},  // RCB
-    {x:80, y:30},  // RB
-    {x:30, y:50},  // LCM
-    {x:50, y:48},  // CM
-    {x:70, y:50},  // RCM
-    {x:22, y:70},  // LW
-    {x:50, y:68},  // ST
-    {x:78, y:70}   // RW
+    {x:50, y:14},
+    {x:20, y:30},
+    {x:40, y:30},
+    {x:60, y:30},
+    {x:80, y:30},
+    {x:30, y:50},
+    {x:50, y:48},
+    {x:70, y:50},
+    {x:22, y:70},
+    {x:50, y:68},
+    {x:78, y:70}
   ],
   "4-2-3-1":[
-    {x:50, y:14},  // GK
-    {x:20, y:30},  // LB
-    {x:40, y:30},  // LCB
-    {x:60, y:30},  // RCB
-    {x:80, y:30},  // RB
-    {x:42, y:44},  // DM1
-    {x:58, y:44},  // DM2
-    {x:30, y:58},  // AM-L
-    {x:50, y:56},  // AM-C
-    {x:70, y:58},  // AM-R
-    {x:50, y:72}   // ST
+    {x:50, y:14},
+    {x:20, y:30},
+    {x:40, y:30},
+    {x:60, y:30},
+    {x:80, y:30},
+    {x:42, y:44},
+    {x:58, y:44},
+    {x:30, y:58},
+    {x:50, y:56},
+    {x:70, y:58},
+    {x:50, y:72}
   ]
 };
 
-const spots = [...document.querySelectorAll(".spot")];
+const pitchWrap = document.getElementById("pitchWrap");
+const playersLayer = document.getElementById("playersLayer");
 
-// عناصر الختم
-const stamp = document.getElementById("stamp");
-const stampAvatar = document.getElementById("stampAvatar");
-const stampHandle = document.getElementById("stampHandle");
+// ---------- بناء 11 لاعب كـ HTML ----------
+function buildPlayerSpots(){
+  playersLayer.innerHTML = "";
+  const arr = [];
+  for(let i=0;i<11;i++){
+    const spot = document.createElement("div");
+    spot.className = "player-spot";
+    spot.dataset.index = String(i);
 
-// تحميل التشكيلة من localStorage
+    const img = document.createElement("img");
+    img.alt = "player";
+    img.crossOrigin = "anonymous";
+
+    const name = document.createElement("div");
+    name.className = "player-name";
+
+    spot.appendChild(img);
+    spot.appendChild(name);
+
+    playersLayer.appendChild(spot);
+    arr.push(spot);
+  }
+  return arr;
+}
+
+let spots = buildPlayerSpots();
+
+// تحويل نسبة إلى إحداثي داخل الحاوية
+function pctToXY(px, py){
+  const rect = pitchWrap.getBoundingClientRect();
+  return {
+    x: (px/100) * rect.width,
+    y: (py/100) * rect.height
+  };
+}
+
+function applyLineup(data){
+  const formationKey = data?.formation || "4-4-2";
+  const f = formations[formationKey] || formations["4-4-2"];
+
+  for(let i=0;i<11;i++){
+    const spot = spots[i];
+    const pos = f[i] || {x:50,y:50};
+    const {x,y} = pctToXY(pos.x, pos.y);
+
+    spot.style.left = x + "px";
+    spot.style.top  = y + "px";
+
+    const imgEl = spot.querySelector("img");
+    const nameEl = spot.querySelector(".player-name");
+
+    const pl = (data?.spots && data.spots[i]) ? data.spots[i] : null;
+
+    nameEl.textContent = pl?.name || "";
+    imgEl.src = pl?.img ? corsProxy(pl.img) : "";
+  }
+}
+
+// ---------- تحميل البيانات من localStorage ----------
 let currentData = null;
 
-(function load(){
-  const dataStr = localStorage.getItem("currentLineup");
-  if(!dataStr) return;
-
-  try{
-    currentData = JSON.parse(dataStr);
-  }catch(e){
-    console.error("خطأ في قراءة currentLineup من localStorage", e);
-    return;
-  }
-
-  // اللوجو عبر البروكسي
+(function init(){
+  // اللوجو
   document.getElementById("logoImg").src = corsProxy("https://i.postimg.cc/pdy9nJdV/IMG-1720.png");
 
-  const f = formations[currentData.formation] || formations["4-4-2"];
+  const s = localStorage.getItem("currentLineup");
+  if(s){
+    try{ currentData = JSON.parse(s); }catch(e){ currentData = null; }
+  }
+  if(!currentData){
+    // fallback خفيف
+    currentData = { formation:"4-4-2", spots: Array.from({length:11}, ()=>({name:"",img:""})) };
+  }
 
-  currentData.spots.forEach((pl,i)=>{
-    if(!f[i] || !spots[i]) return;
+  applyLineup(currentData);
 
-    const pos = f[i];
-    const cx = mx(pos.x);
-    const cy = my(pos.y);
+  // ختم X
+  const userXraw = (localStorage.getItem("userX") || "").trim();
+  const userX = userXraw.replace(/^@/,'');
+  const stamp = document.getElementById("stamp");
+  const stampHandle = document.getElementById("stampHandle");
+  const stampAvatar = document.getElementById("stampAvatar");
 
-    const s = spots[i];
-    const ring = s.querySelector(".spot-ring");
-    const img = s.querySelector(".spot-img");
-    const name = s.querySelector(".spot-name");
-
-    ring.setAttribute("cx",cx);
-    ring.setAttribute("cy",cy);
-
-    img.setAttribute("x",cx-30);
-    img.setAttribute("y",cy-30);
-
-    // مهم: صورة اللاعب عبر البروكسي
-    if(pl.img){
-      const url = corsProxy(pl.img);
-      img.setAttribute("href", url);
-      // دعم إضافي لبعض المتصفحات
-      img.setAttributeNS("http://www.w3.org/1999/xlink", "href", url);
-    }
-
-    name.setAttribute("x",cx);
-    name.setAttribute("y",cy+42);
-    name.textContent = pl.name || "";
-  });
-
-  // ختم حساب X (صورة + اسم)
-  const userX = localStorage.getItem("userX") || "";
   if(userX){
-    stampHandle.textContent = "@"+userX.replace(/^@/,'');
-    stampAvatar.src = corsProxy(`https://unavatar.io/twitter/${userX.replace(/^@/,'')}`);
+    stampHandle.textContent = "@"+userX;
+    stampAvatar.src = corsProxy(`https://unavatar.io/twitter/${userX}`);
     stamp.style.display = "flex";
   }else{
     stamp.style.display = "none";
   }
 })();
 
-// حفظ الصورة PNG
+window.addEventListener("resize", ()=>{
+  applyLineup(currentData);
+});
+
+// ---------- حفظ الصورة ----------
 document.getElementById("saveImageBtn").onclick = async ()=>{
   const capture = document.getElementById("captureArea");
 
-  // نجهّز قائمة الصور اللي لازم تتحمّل قبل التصوير
-  const imagesToLoad = [];
+  // تأكد تحميل صور اللاعبين + اللوجو + الختم (إن وجد)
+  await waitAllImages(capture);
 
-  // لوجو
-  imagesToLoad.push(preloadImage(document.getElementById("logoImg").src));
-
-  // ختم X (إذا موجود)
-  if(stamp.style.display !== "none"){
-    imagesToLoad.push(preloadImage(stampAvatar.src));
-  }
-
-  // صور اللاعبين (من currentData)
-  if(currentData && Array.isArray(currentData.spots)){
-    currentData.spots.forEach(pl=>{
-      if(pl && pl.img) imagesToLoad.push(preloadImage(corsProxy(pl.img)));
+  try{
+    const canvas = await html2canvas(capture, {
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: null,
+      scale: 2,
+      logging: false
     });
-  }
 
-  await Promise.all(imagesToLoad);
-
-  // تصوير
-  html2canvas(capture, {
-    useCORS: true,
-    allowTaint: false,
-    backgroundColor: null,
-    scale: 2,
-    logging: false,
-    foreignObjectRendering: true
-  }).then(c=>{
     const a = document.createElement("a");
     a.download = "lineup.png";
-    a.href = c.toDataURL("image/png");
+    a.href = canvas.toDataURL("image/png");
     a.click();
-  }).catch(err=>{
+  }catch(err){
     console.error(err);
     alert("تعذر حفظ الصورة، جرّب إعادة تحميل الصفحة.");
-  });
+  }
 };
 </script>
 

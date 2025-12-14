@@ -1,406 +1,153 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ar">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>التشكيلة المختارة – OUR CAMEL</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lineup</title>
+
+<!-- html2canvas -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <style>
-:root{
-  --bg:#1c2245;
-  --pitch:#e4bd79;
-}
-*{ box-sizing:border-box; }
 body{
   margin:0;
-  background:var(--bg);
-  display:flex;
-  justify-content:center;
-  padding:10px;
-  font-family:'Tahoma',sans-serif;
+  background:#1b2345;
+  font-family: "Cairo", sans-serif;
 }
-.canvas{
+
+#lineup{
   width:390px;
-  height:844px;
-  background:var(--bg);
+  height:780px;
+  margin:20px auto;
+  background:#1b2345;
   position:relative;
-  border-radius:16px;
   overflow:hidden;
-  direction:rtl;
 }
 
 
-x;
-  left:20
-/* اللوجو */
-.logo{
-  position:absolute;
-  top:60px;
-  width:100%;
-  text-align:center;
-  z-index:5;
-}
-.logo img{ height:46px; }
-
-/* زر الحفظ */
-#saveImageBtn{
-  position:absolute;
-  top:20px;
-  right:20px;
-  padding:8px 16px;
-  background:var(--pitch);
-  color:var(--bg);
-  font-weight:bold;
-  border:none;
-  font-size:12px;
-  border-radius:10px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.4);
-  cursor:pointer;
-  z-index:50;
-}
-#saveImageBtn[disabled]{ opacity:.6; cursor:not-allowed; }
-
+-50%);
+  tex
 /* الملعب */
-.pitch-wrapper{
+.pitch{
   position:absolute;
-  top:120
-ppx;
-  right:20px;
-  height:540px;
-  border-radius:14px;
-  overflow:hidden;
+  inset:20px;
+  border:3px solid #d8b26a;
 }
 
-/* طبقة اللاعبين فوق الملعب */
-.players-layer{
+/* اللاعب */
+.player{
   position:absolute;
-  inset:0;
-  z-index:20;
-  pointer-events:none;
-}
-
-/* بطاقة اللاعب */
-.player-spot{
-  position:absolute;
-  width:66px;
-  height:66px;
-  transform:translate(-50%,-50%);
+  width:64px;
+  height:64px;
   border-radius:50%;
-  background:var(--pitch);
-  border:4px solid #00000055;
-  box-shadow:0 5px 14px rgba(0,0,0,0.35);
+  background:#d8b26a;
   display:flex;
   align-items:center;
   justify-content:center;
-
-  /* مهم: يمنع ظهور نص alt (playe) داخل الدائرة */
-  font-size:0;
-  line-height:0;
 }
-.player-spot img{
-  width:58px;
-  height:58px;
+
+.player img{
+  width:100%;
+  height:100%;
   border-radius:50%;
   object-fit:cover;
   display:block;
 }
+
+/* اسم اللاعب */
 .player-name{
   position:absolute;
   top:70px;
+  width:120px;
   left:50%;
-  transform:translateX(-50%);
-  width:max-content;
-  max-width:150px;
+  transform:translateX
+(t-align:center;
   font-size:12px;
-  font-weight:800;
-  color:var(--pitch);
-  text-shadow:0 3px 10px rgba(0,0,0,0.5);
-  white-space:nowrap;
-  overflow:hidden;
-  text-overflow:ellipsis;
+  color:#e7c98c;
 }
 
-/* ختم X — نخليه خارج الملعب عشان ما يغطي لاعبين */
+/* زر الحفظ */
+.save-btn{
+  position:absolute;
+  top:10px;
+  right:10px;
+  background:#d8b26a;
+  color:#1b2345;
+  padding:8px 14px;
+  border-radius:20px;
+  font-weight:bold;
+  border:none;
+  cursor:pointer;
+  z-index:5;
+}
+
+/* الختم */
 .stamp{
   position:absolute;
-  left:18px;
-  bottom:18px;
-  display:none;
-  align-items:center;
-  gap:10px;
-  z-index:60;
-}
-.stamp .avatar{
-  width:66px;
-  height:66px;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  width:90px;
+  height:90px;
   border-radius:50%;
-  border:7px solid var(--pitch);
-  background:#00000022;
-  overflow:hidden;
+  border:4px solid #d8b26a;
   display:flex;
   align-items:center;
   justify-content:center;
 }
-.stamp .avatar img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  display:block;
-}
-.stamp .handle{
-  color:var(--pitch);
-  font-size:16px;
-  font-weight:900;
-  direction:ltr;
-  text-shadow:0 3px 10px rgba(0,0,0,0.45);
+
+.stamp img{
+  width:70%;
+  height:70%;
+  object-fit:contain;
 }
 </style>
 </head>
 
 <body>
 
-<div id="captureArea" class="canvas">
-  <button id="saveImageBtn">💾 حفظ الصورة</button>
+<button class="save-btn" onclick="saveImage()">حفظ الصورة 💾</button>
 
-  <div class="logo">
-    <img id="logoImg" alt="OUR CAMEL" crossorigin="anonymous">
+<div id="lineup">
+
+  <div class="pitch"></div>
+
+  <!-- لاعب مثال -->
+  <div class="player" style="top:90px; left:160px;">
+    <img src="players/player1.png" crossorigin="anonymous">
+    <div class="player-name">فيصل الدخيل</div>
   </div>
 
-  <!-- الملعب -->
-  <div class="pitch-wrapper" id="pitchWrap">
-    <svg viewBox="0 0 360 600" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="pitchGrad" gradientUnits="userSpaceOnUse" x1="20" y1="60" x2="20" y2="540">
-          <stop offset="0%" stop-color="#1c2245" />
-          <stop offset="50%" stop-color="#262c55" />
-          <stop offset="100%" stop-color="#1c2245" />
-        </linearGradient>
-      </defs>
-
-      <rect x="20" y="60" width="320" height="480" fill="url(#pitchGrad)" />
-      <rect x="20" y="60" width="320" height="480" fill="none" stroke="var(--pitch)" stroke-width="3"/>
-      <line x1="20" y1="300" x2="340" y2="300" stroke="var(--pitch)" stroke-width="3"/>
-      <circle cx="180" cy="300" r="48" fill="none" stroke="var(--pitch)" stroke-width="3"/>
-
-      <rect x="90" y="60" width="180" height="110" fill="none" stroke="var(--pitch)" stroke-width="3"/>
-      <rect x="130" y="60" width="100" height="60" fill="none" stroke="var(--pitch)" stroke-width="3"/>
-      <path d="M 150 170 A 30 30 0 0 0 210 170" fill="none" stroke="var(--pitch)" stroke-width="3"/>
-
-      <rect x="90" y="430" width="180" height="110" fill="none" stroke="var(--pitch)" stroke-width="3"/>
-      <rect x="130" y="480" width="100" height="60" fill="none" stroke="var(--pitch)" stroke-width="3"/>
-      <path d="M 150 430 A 30 30 0 0 1 210 430" fill="none" stroke="var(--pitch)" stroke-width="3"/>
-    </svg>
-
-    <div class="players-layer" id="playersLayer"></div>
+  <div class="player" style="top:160px; left:120px;">
+    <img src="players/player2.png" crossorigin="anonymous">
+    <div class="player-name">عبدالله</div>
   </div>
 
-  <!-- ختم X خارج الملعب -->
-  <div class="stamp" id="stamp">
-    <div class="avatar"><img id="stampAvatar" alt="X Avatar" crossorigin="anonymous"></div>
-    <div class="handle" id="stampHandle">@USER</div>
+  <div class="player" style="top:160px; left:200px;">
+    <img src="players/player3.png" crossorigin="anonymous">
+    <div class="player-name">ناصر</div>
   </div>
+
+  <!-- الختم -->
+  <div class="stamp">
+    <img src="assets/stamp.png" crossorigin="anonymous">
+  </div>
+
 </div>
 
-<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-
 <script>
-/* Proxy مضبوط + يمنع تغليف الرابط مرتين */
-function corsProxy(url){
-  if(!url) return "";
-  const u = String(url).trim();
-
-  // لو Data URL أو Blob خليها كما هي
-  if(u.startsWith("data:") || u.startsWith("blob:")) return u;
-
-  // لو أصلاً proxied، لا تعيد proxy
-  if(u.includes("images.weserv.nl") || u.includes("wsrv.nl")) return u;
-
-  // weserv يحتاج url بدون scheme
-  const clean = u.replace(/^https?:\/\//,'');
-  return `https://images.weserv.nl/?url=${encodeURIComponent(clean)}&output=png`;
+function saveImage(){
+  html2canvas(document.querySelector("#lineup"),{
+    useCORS:true,
+    allowTaint:true,
+    backgroundColor:null
+  }).then(canvas=>{
+    const link = document.createElement("a");
+    link.download = "lineup.png";
+    link.href = canvas.toDataURL("image/png");
+    link.click();
+  });
 }
-
-/* انتظار تحميل الصور لكن بحد أقصى (لا يعلق الزر) */
-function waitAllImagesWithTimeout(container, ms=2500){
-  const imgs = Array.from(container.querySelectorAll("img"));
-  const waitImgs = Promise.all(imgs.map(img=>{
-    return new Promise(res=>{
-      if(img.complete && img.naturalWidth > 0) return res();
-      img.onload = ()=>res();
-      img.onerror = ()=>res();
-    });
-  }));
-  const timeout = new Promise(res=>setTimeout(res, ms));
-  return Promise.race([waitImgs, timeout]);
-}
-
-/* التشكيلات */
-const formations = {
-  "4-4-2":[
-    {x:50,  y:88},
-    {x:25,  y:70},
-    {x:40,  y:68},
-    {x:60,  y:68},
-    {x:75,  y:70},
-    {x:22,  y:52},
-    {x:40,  y:48},
-    {x:60,  y:48},
-    {x:78,  y:52},
-    {x:42,  y:30},
-    {x:58,  y:30}
-  ],
-  "4-3-3":[
-    {x:50, y:14},
-    {x:20, y:30},
-    {x:40, y:30},
-    {x:60, y:30},
-    {x:80, y:30},
-    {x:30, y:50},
-    {x:50, y:48},
-    {x:70, y:50},
-    {x:22, y:70},
-    {x:50, y:68},
-    {x:78, y:70}
-  ],
-  "4-2-3-1":[
-    {x:50, y:14},
-    {x:20, y:30},
-    {x:40, y:30},
-    {x:60, y:30},
-    {x:80, y:30},
-    {x:42, y:44},
-    {x:58, y:44},
-    {x:30, y:58},
-    {x:50, y:56},
-    {x:70, y:58},
-    {x:50, y:72}
-  ]
-};
-
-const pitchWrap = document.getElementById("pitchWrap");
-const playersLayer = document.getElementById("playersLayer");
-
-function buildPlayerSpots(){
-  playersLayer.innerHTML = "";
-  const arr = [];
-  for(let i=0;i<11;i++){
-    const spot = document.createElement("div");
-    spot.className = "player-spot";
-    spot.dataset.index = String(i);
-
-    const img = document.createElement("img");
-    // لا تحط alt عشان ما يظهر نص داخل الدائرة لو فشل
-    img.alt = "";
-    img.crossOrigin = "anonymous";
-
-    const name = document.createElement("div");
-    name.className = "player-name";
-
-    spot.appendChild(img);
-    spot.appendChild(name);
-    playersLayer.appendChild(spot);
-    arr.push(spot);
-  }
-  return arr;
-}
-
-let spots = buildPlayerSpots();
-
-function pctToXY(px, py){
-  const rect = pitchWrap.getBoundingClientRect();
-  return { x: (px/100)*rect.width, y: (py/100)*rect.height };
-}
-
-let currentData = null;
-
-function applyLineup(data){
-  const formationKey = data?.formation || "4-4-2";
-  const f = formations[formationKey] || formations["4-4-2"];
-
-  for(let i=0;i<11;i++){
-    const spot = spots[i];
-    const pos = f[i] || {x:50,y:50};
-    const {x,y} = pctToXY(pos.x, pos.y);
-
-    spot.style.left = x + "px";
-    spot.style.top  = y + "px";
-
-    const imgEl = spot.querySelector("img");
-    const nameEl = spot.querySelector(".player-name");
-
-    const pl = (data?.spots && data.spots[i]) ? data.spots[i] : null;
-    nameEl.textContent = pl?.name || "";
-
-    if(pl?.img){
-      imgEl.src = corsProxy(pl.img);
-      imgEl.style.display = "block";
-    }else{
-      imgEl.removeAttribute("src");
-      imgEl.style.display = "none";
-    }
-  }
-}
-
-function init(){
-  // اللوجو
-  document.getElementById("logoImg").src = corsProxy("https://i.postimg.cc/pdy9nJdV/IMG-1720.png");
-
-  // lineup
-  const s = localStorage.getItem("currentLineup");
-  if(s){
-    try{ currentData = JSON.parse(s); }catch(e){ currentData = null; }
-  }
-  if(!currentData){
-    currentData = { formation:"4-4-2", spots: Array.from({length:11}, ()=>({name:"",img:""})) };
-  }
-  applyLineup(currentData);
-
-  // ختم X
-  const userXraw = (localStorage.getItem("userX") || "").trim();
-  const userX = userXraw.replace(/^@/,'');
-  const stamp = document.getElementById("stamp");
-  const stampHandle = document.getElementById("stampHandle");
-  const stampAvatar = document.getElementById("stampAvatar");
-
-  if(userX){
-    stampHandle.textContent = "@"+userX;
-    stampAvatar.src = corsProxy(`https://unavatar.io/twitter/${userX}`);
-    stamp.style.display = "flex";
-  }else{
-    stamp.style.display = "none";
-  }
-}
-
-window.addEventListener("load", init);
-window.addEventListener("resize", ()=>applyLineup(currentData));
-
-document.getElementById("saveImageBtn").onclick = async ()=>{
-  const btn = document.getElementById("saveImageBtn");
-  btn.disabled = true;
-
-  const capture = document.getElementById("captureArea");
-  await waitAllImagesWithTimeout(capture, 2500);
-
-  try{
-    const canvas = await html2canvas(capture, {
-      useCORS: true,
-      allowTaint: false,
-      backgroundColor: null,
-      scale: 2,
-      logging: false
-    });
-
-    const a = document.createElement("a");
-    a.download = "lineup.png";
-    a.href = canvas.toDataURL("image/png");
-    a.click();
-  }catch(err){
-    console.error(err);
-    alert("تعذر حفظ الصورة، جرّب إعادة تحميل الصفحة.");
-  }finally{
-    btn.disabled = false;
-  }
-};
 </script>
 
 </body>

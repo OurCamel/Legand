@@ -1,0 +1,33 @@
+
+<!doctype html><html lang="ar"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>بناء التشكيلة</title>
+<link rel="stylesheet" href="assets/style.css"></head>
+<body><div class="app">
+<h1>التشكيلة</h1>
+<div class="pitch" id="pitch"></div>
+<button onclick="save()">حفظ التشكيلة</button>
+</div>
+<div class="nav">
+<a href="index.html">الرئيسية</a>
+<a href="builder.html">التشكيلة</a>
+<a href="saved.html">المحفوظات</a>
+<a href="stats.html">الإحصائيات</a>
+<a href="admin.html">التحكم</a>
+</div>
+<script>
+fetch("data/players.json").then(r=>r.json()).then(players=>{
+ const pitch=document.getElementById("pitch");
+ const pos=[[50,85],[20,60],[40,50],[60,50],[80,60]];
+ players.slice(0,5).forEach((p,i)=>{
+  const d=document.createElement("div");
+  d.className="player";
+  d.style.left=pos[i][0]+"%";
+  d.style.top=pos[i][1]+"%";
+  d.innerHTML=`<img src="${p.photo}"><div>${p.name}</div>`;
+  pitch.appendChild(d);
+ });
+ window.save=()=>localStorage.setItem("currentLineup",JSON.stringify(players));
+});
+</script>
+</body></html>

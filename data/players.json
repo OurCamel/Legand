@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "name": "لاعب 1",
+    "pos": "GK",
+    "photo": "assets/players/p1.png"
+  },
+  {
+    "id": 2,
+    "name": "لاعب 2",
+    "pos": "DEF",
+    "photo": "assets/default.png"
+  },
+  {
+    "id": 3,
+    "name": "لاعب 3",
+    "pos": "MID",
+    "photo": "assets/default.png"
+  },
+  {
+    "id": 4,
+    "name": "لاعب 4",
+    "pos": "ATT",
+    "photo": "assets/default.png"
+  }
+]
